@@ -1,1 +1,3 @@
-# letreco-javascript
+### Let-treco
+
+Baseado no jogo Wordle desenvolvido pelo Josh Wardle, o let-treco é...
