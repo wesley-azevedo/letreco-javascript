@@ -18,6 +18,7 @@ let palavraRandomArray = palavraRandom.split('')
 //Linha atual que começa em 0
 let linhaAtual = Number(0)
 //Quantidade de letras certas que começa em 0
+let campoAtual = Number(0)
 
 //////
 
@@ -49,17 +50,86 @@ function iniciar() {
             letra.id = letras[l];
             document.querySelector(`.botoesTeclado`).appendChild(letra);        
     }
+    
     for (let f = 0; f < botoesFuncoes.length; f++) {
         let funcao = document.createElement("input");
         funcao.type = 'button'
         funcao.value = botoesFuncoes[f]
-        funcao.className = "botaoFuncao"
+        funcao.className  = "botaoFuncao"
         funcao.id = `botao${botoesFuncoes[f]}`;
-        funcao.onclick = `${botoesFuncoes[f]}()`
-        document.querySelector(`.botoesFuncoes`).appendChild(funcao);        
-    }
+        if (funcao.value == "resetar") {
+            funcao.addEventListener('click', funcaoResetar)
+        } else if (funcao.value == "confirmar") {
+            funcao.addEventListener('click', funcaoConfirmar)
+        } else {
+            funcao.addEventListener('click', funcaoApagar)
+        }
+        document.querySelector(`.botoesFuncoes`).appendChild(funcao);
+        }
 }
 
-function resetar() {
-    location.reload();    
+function funcaoResetar() {
+    location.reload();  
+    console.log('Resetei');
+}
+
+function funcaoConfirmar() {
+    //Array da palavra contida na tentatiava atual
+    let palavraAtualArray = []
+    //Confirmação se a palavra testada existe
+    for (let i = 0; i < 5; i++) {
+        palavraAtualArray.push((document.getElementById(`linha${linhaAtual}`+`campo${i}`).value).toLowerCase());
+        palavraAtual = (palavraAtualArray.toString()).replaceAll(",","")
+    }
+    console.log(`A palavra testada é "${palavraAtual}".`)
+    //Caso exista, segue. Caso não, imprime um alerta.
+    if (palavrasPossiveis.includes(`${palavraAtual}`)) {
+        verificarLetras()
+    } else {
+        alert(`Parece que ${palavraAtual} não é uma palavra válida. Caso a sua palavra possua acentos e "ç", você pode retirá-los e/ou subistua o "ç" por "c". Caso não possua, tente outra palavra, por favor.`)
+    }
+    //Depois, coloca pra sumir uma linha de inputs pra quem tentar burlar.
+    palavraAtualArray = []
+}
+
+function verificarLetras() {
+    let letrasCertas = 0
+
+    //Verificação das letras comparando a palavra atual com a palavra randomizada.
+    for (let i = 0; i < palavraRandomArray.length; i++) {
+        let letra = (document.getElementById(`linha${linhaAtual}`+`campo${i}`).value).toLowerCase();
+        let letraContida = palavraRandom.includes(`${letra}`)
+ 
+                
+        document.getElementById(`linha${linhaAtual}`+`campo${i}`).style.color = 'black';
+        document.getElementById(`${letra}`).style.color = 'black';
+        
+        if (letraContida === true && letra === palavraRandomArray[i]) {
+            console.log(`Letra "${letra}" encontrada na mesma posicao`);
+            document.getElementById(`linha${linhaAtual}`+`campo${i}`).style.backgroundColor = '#009f03';
+            document.getElementById(`${letra}`).style.backgroundColor = '#009f03';
+            letrasCertas++
+        } else if (letraContida === true) {
+            console.log(`Letra "${letra}" encontrada em posicao diferente.`);
+            document.getElementById(`linha${linhaAtual}`+`campo${i}`).style.backgroundColor = 'yellow';
+            document.getElementById(`${letra}`).style.backgroundColor = 'yellow';
+        } else {
+            console.log(`Letra "${letra}" não encontrada.`);
+            document.getElementById(`linha${linhaAtual}`+`campo${i}`).style.backgroundColor = 'red';
+            document.getElementById(`${letra}`).style.backgroundColor = 'red';
+        }      
+    }  
+    
+    if (letrasCertas == 5) {
+        alert(`Parabéns, você acertou! A palavra do dia era ${palavraRandom}.`)
+        } else if (letrasCertas < 5 && linhaAtual < 5){
+        linhaAtual++
+        campoAtual = 0
+        console.log(`Essa foi a ${linhaAtual}ª tentativa. Nela, você acertou ${letrasCertas} letra(s).`)
+        alert(`Não foi dessa vez. Você possui mais ${6 - linhaAtual} tentativa(s).`)
+        letrasCertas = 0
+        } else {
+        linhaAtual = undefined
+        alert(`Você não possui mais nenhuma tentativa.`)
+    }    
 }
